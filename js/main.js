@@ -140,6 +140,38 @@ photos.slice(1).forEach((photo) => {
 const heroBrowse = document.createElement('div');heroBrowse.className = 'hero-browse';
 heroBrowse.innerHTML = '<span>Desliza para ver la casa</span><div class="hero-browse-controls"><button type="button" aria-label="Foto anterior de portada">←</button><span class="hero-count" aria-live="polite"></span><button type="button" aria-label="Foto siguiente de portada">→</button></div>';
 $('.hero').append(heroBrowse);
+const hero = $('.hero');
+const heroCopy = $('.hero-copy');
+let heroRestoreTimer;
+let heroPointerDown = false;
+function revealHeroCopy() {
+  hero.classList.remove('is-browsing');
+  heroCopy.inert = false;
+  heroCopy.removeAttribute('aria-hidden');
+}
+function browseHeroPhotos() {
+  clearTimeout(heroRestoreTimer);
+  // Keep focused links visible for keyboard users.
+  if (heroCopy.contains(document.activeElement)) return;
+  hero.classList.add('is-browsing');
+  heroCopy.inert = true;
+  heroCopy.setAttribute('aria-hidden', 'true');
+  if (!heroPointerDown) heroRestoreTimer = setTimeout(revealHeroCopy, 2000);
+}
+heroTrack.addEventListener('pointerdown', () => { heroPointerDown = true; browseHeroPhotos(); }, {passive:true});
+function finishHeroGesture() {
+  if (!heroPointerDown) return;
+  heroPointerDown = false;
+  browseHeroPhotos();
+}
+window.addEventListener('pointerup', finishHeroGesture, {passive:true});
+window.addEventListener('pointercancel', finishHeroGesture, {passive:true});
+heroTrack.addEventListener('scroll', browseHeroPhotos, {passive:true});
+heroTrack.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') browseHeroPhotos();
+});
+heroBrowse.querySelectorAll('button').forEach((button) => button.addEventListener('click', browseHeroPhotos));
+
 function updateHeroCount() { $('.hero-count').textContent = `${nearestPhoto(heroTrack) + 1} / ${photos.length}`; }
 heroTrack.addEventListener('scroll', updateHeroCount, {passive:true});
 window.addEventListener('resize', updateHeroCount);updateHeroCount();

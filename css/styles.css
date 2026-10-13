@@ -34,3 +34,8 @@
 .contact-bar{grid-template-columns:1fr 1fr 1.62fr}
 .location-contact .icon{color:#ff727a}
 @media(min-width:700px){.features{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.features li{font-size:13px}.features strong{font-size:15px}}
+
+/* Let the photography breathe while the visitor browses. */
+.hero-copy,.hero-shade{transition:opacity .35s ease}
+.hero.is-browsing .hero-copy,.hero.is-browsing .hero-shade{opacity:0}
+.hero.is-browsing .hero-copy,.hero.is-browsing .hero-copy a{pointer-events:none}
