@@ -137,6 +137,32 @@ photos.slice(1).forEach((photo) => {
   img.className = 'hero-photo';img.src = photo.src;img.alt = photo.alt;
   img.loading = 'lazy';img.decoding = 'async';heroTrack.append(img);
 });
+// Boundary duplicates keep native touch scrolling continuous in both directions.
+const heroFirstClone = heroTrack.firstElementChild.cloneNode(true);
+const heroLastClone = heroTrack.lastElementChild.cloneNode(true);
+for (const clone of [heroFirstClone, heroLastClone]) {
+  clone.setAttribute('aria-hidden', 'true');
+  clone.alt = '';
+}
+heroTrack.prepend(heroLastClone);
+heroTrack.append(heroFirstClone);
+function jumpHero(index) {
+  const items = [...heroTrack.children];
+  heroTrack.scrollTo({left:items[index].offsetLeft - items[0].offsetLeft, behavior:'instant'});
+}
+jumpHero(1);
+let heroLoopTimer;
+function settleHeroLoop() {
+  if (heroPointerDown) return;
+  const index = nearestPhoto(heroTrack);
+  if (index === 0) jumpHero(photos.length);
+  else if (index === photos.length + 1) jumpHero(1);
+}
+heroTrack.addEventListener('scroll', () => {
+  clearTimeout(heroLoopTimer);
+  heroLoopTimer = setTimeout(settleHeroLoop, 160);
+}, {passive:true});
+heroTrack.addEventListener('scrollend', settleHeroLoop);
 const heroBrowse = document.createElement('div');heroBrowse.className = 'hero-browse';
 heroBrowse.innerHTML = '<span>Desliza para ver la casa</span><div class="hero-browse-controls"><button type="button" aria-label="Foto anterior de portada">←</button><span class="hero-count" aria-live="polite"></span><button type="button" aria-label="Foto siguiente de portada">→</button></div>';
 $('.hero').append(heroBrowse);
@@ -163,6 +189,8 @@ function finishHeroGesture() {
   if (!heroPointerDown) return;
   heroPointerDown = false;
   browseHeroPhotos();
+  clearTimeout(heroLoopTimer);
+  heroLoopTimer = setTimeout(settleHeroLoop, 160);
 }
 window.addEventListener('pointerup', finishHeroGesture, {passive:true});
 window.addEventListener('pointercancel', finishHeroGesture, {passive:true});
@@ -172,7 +200,7 @@ heroTrack.addEventListener('keydown', (event) => {
 });
 heroBrowse.querySelectorAll('button').forEach((button) => button.addEventListener('click', browseHeroPhotos));
 
-function updateHeroCount() { $('.hero-count').textContent = `${nearestPhoto(heroTrack) + 1} / ${photos.length}`; }
+function updateHeroCount() { $('.hero-count').textContent = `${((nearestPhoto(heroTrack) - 1 + photos.length) % photos.length) + 1} / ${photos.length}`; }
 heroTrack.addEventListener('scroll', updateHeroCount, {passive:true});
 window.addEventListener('resize', updateHeroCount);updateHeroCount();
 heroBrowse.querySelectorAll('button').forEach((button, index) => button.addEventListener('click', () => scrollPhoto(heroTrack, nearestPhoto(heroTrack) + (index ? 1 : -1))));
