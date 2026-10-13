@@ -39,3 +39,8 @@
 .hero-copy,.hero-shade{transition:opacity .35s ease}
 .hero.is-browsing .hero-copy,.hero.is-browsing .hero-shade{opacity:0}
 .hero.is-browsing .hero-copy,.hero.is-browsing .hero-copy a{pointer-events:none}
+
+/* The property sheet slides over the anchored photo cover. */
+.hero{position:sticky;top:0;z-index:0}
+.property{position:relative;z-index:1;border-radius:22px 22px 0 0;box-shadow:0 -12px 32px #0002}
+.location{z-index:1}
