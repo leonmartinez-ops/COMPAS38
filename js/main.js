@@ -188,3 +188,25 @@ $('.menu-toggle').addEventListener('click', () => {
 $('#quick-menu a').addEventListener('click', closeMenu);
 document.addEventListener('click', (event) => { if (!event.target.closest('.masthead')) closeMenu(); });
 document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeMenu(); });
+
+// Size against the fixed scroll runway, so growth does not shift its trigger.
+const mapScroll = $('.map-scroll');
+const inlineMap = $('.map-preview');
+let mapFramePending = false;
+function resizeLocationMap() {
+  mapFramePending = false;
+  if (reducedMotion()) { inlineMap.style.removeProperty('--map-height'); return; }
+  const viewport = window.innerHeight;
+  const barHeight = $('.contact-bar').getBoundingClientRect().height;
+  const maximum = Math.max(250, viewport - barHeight - 32);
+  const minimum = Math.min(maximum, Math.max(window.innerWidth >= 700 ? 320 : 250, viewport * .46));
+  const progress = Math.max(0, Math.min(1, (viewport * .7 - mapScroll.getBoundingClientRect().top) / (viewport * .7)));
+  const eased = progress * progress * (3 - 2 * progress);
+  inlineMap.style.setProperty('--map-height', `${Math.round(minimum + (maximum - minimum) * eased)}px`);
+}
+function scheduleMapResize() {
+  if (!mapFramePending) { mapFramePending = true; requestAnimationFrame(resizeLocationMap); }
+}
+window.addEventListener('scroll', scheduleMapResize, {passive:true});
+window.addEventListener('resize', scheduleMapResize);
+resizeLocationMap();
