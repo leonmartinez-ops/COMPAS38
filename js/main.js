@@ -182,7 +182,7 @@ function browseHeroPhotos() {
   hero.classList.add('is-browsing');
   heroCopy.inert = true;
   heroCopy.setAttribute('aria-hidden', 'true');
-  if (!heroPointerDown) heroRestoreTimer = setTimeout(revealHeroCopy, 2000);
+  if (!heroPointerDown) heroRestoreTimer = setTimeout(revealHeroCopy, 6000);
 }
 heroTrack.addEventListener('pointerdown', () => { heroPointerDown = true; browseHeroPhotos(); }, {passive:true});
 function finishHeroGesture() {
