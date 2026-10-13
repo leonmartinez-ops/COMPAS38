@@ -238,3 +238,5 @@ function scheduleMapResize() {
 window.addEventListener('scroll', scheduleMapResize, {passive:true});
 window.addEventListener('resize', scheduleMapResize);
 resizeLocationMap();
+
+$$('[data-contact]').forEach((button) => button.addEventListener('click', () => $('#whatsapp').click()));

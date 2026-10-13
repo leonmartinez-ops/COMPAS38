@@ -55,3 +55,22 @@
 .map-preview iframe{display:block;width:100%;height:100%;filter:none;opacity:1;border:0}
 @media(min-width:700px){.location{padding-top:36px}.location-copy{font-size:17px}.map-preview{min-height:320px}}
 @media(prefers-reduced-motion:reduce){.map-scroll{height:auto;padding-bottom:24px}.map-preview{position:relative;top:0;height:65svh}}
+
+/* The white sales summary rises over the anchored location map. */
+.map-scroll{height:auto}
+.sales-details{position:relative;z-index:2;margin-top:30svh;background:#fff;color:var(--ink);border-radius:24px 24px 0 0;box-shadow:0 -14px 36px #0002;padding:38px var(--gutter) 44px;min-height:100svh}
+.sales-inner{max-width:1100px;margin:auto}
+.sales-eyebrow{font-size:10px;letter-spacing:.13em;font-weight:600;color:#686d70;margin:0 0 14px}
+.location .sales-details h2{font-family:var(--ui);font-size:clamp(29px,6.8vw,48px);font-weight:500;line-height:1.12;letter-spacing:-.04em;margin:0 0 18px}
+.sales-intro{font-size:15px;line-height:1.65;color:#50575b;max-width:650px;margin:0 0 30px}
+.benefits{display:grid;grid-template-columns:1fr;gap:0}
+.benefit{display:flex;gap:16px;padding:22px 0;border-top:1px solid #e5e7e7}
+.benefit>.icon{width:30px;height:30px;color:#a41d25;margin-top:2px}
+.benefit h3{font-size:16px;font-weight:600;line-height:1.4;margin:0 0 8px;letter-spacing:-.015em}
+.benefit p{font-size:14px;line-height:1.65;color:#50575b;margin:0}
+.visit-invitation{margin-top:28px;padding:26px 22px;background:#f4f2ed;border-radius:16px}
+.visit-invitation h3{font-size:25px;font-weight:500;letter-spacing:-.03em;margin:0 0 10px}
+.visit-invitation p{font-size:14px;line-height:1.6;max-width:580px;margin:0 0 20px;color:#50575b}
+.details-visit{width:100%;max-width:360px;min-height:52px;background:var(--green);color:#fff;border-radius:9px;font-size:12px;gap:10px}
+@media(min-width:700px){.sales-details{padding-top:56px}.benefits{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:44px}.benefit p{font-size:15px}.sales-eyebrow{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.sales-details{margin-top:24px}}
