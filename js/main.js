@@ -107,24 +107,47 @@ $('.lightbox-stage').addEventListener('touchend', (event) => {
 }, {passive:true});
 const gallery = $('.gallery');
 const indicators = $('.gallery-indicators');
-const pages = Math.ceil(photos.length / 3);
-for (let page = 0; page < pages; page++) {
-  const dot = document.createElement('button');
-  dot.type = 'button';dot.ariaLabel = `Ir al grupo ${page + 1} de fotografías`;
-  dot.addEventListener('click', () => {
-    const photo = $$('.photo')[page * 3];
-    const left = photo.offsetLeft - gallery.firstElementChild.offsetLeft;
-    gallery.scrollTo({left,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
-  });
-  indicators.append(dot);
+const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+function scrollPhoto(track, index) {
+  const items = [...track.children];
+  const selected = Math.max(0, Math.min(items.length - 1, index));
+  track.scrollTo({left:items[selected].offsetLeft - items[0].offsetLeft, behavior:reducedMotion() ? 'auto' : 'smooth'});
+}
+function nearestPhoto(track) {
+  const items = [...track.children];
+  return items.reduce((best, item, index) => Math.abs(item.offsetLeft - items[0].offsetLeft - track.scrollLeft) < Math.abs(items[best].offsetLeft - items[0].offsetLeft - track.scrollLeft) ? index : best, 0);
 }
 function updateIndicators() {
-  const range = gallery.scrollWidth - gallery.clientWidth;
-  const page = range > 0 ? Math.min(pages - 1, Math.round((gallery.scrollLeft / range) * (pages - 1))) : 0;
-  [...indicators.children].forEach((dot, i) => dot.setAttribute('aria-current', String(i === page)));
+  indicators.textContent = `Desliza para recorrer · ${nearestPhoto(gallery) + 1} / ${photos.length}`;
 }
 gallery.addEventListener('scroll', updateIndicators, {passive:true});
 window.addEventListener('resize', updateIndicators);updateIndicators();
+gallery.addEventListener('keydown', (event) => {
+  if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+  event.preventDefault();scrollPhoto(gallery, nearestPhoto(gallery) + (event.key === 'ArrowRight' ? 1 : -1));
+});
+const heroTrack = document.createElement('div');
+heroTrack.className = 'hero-carousel';
+heroTrack.setAttribute('aria-label', 'Fotos de la casa; desliza a izquierda o derecha');
+heroTrack.setAttribute('role', 'region');heroTrack.tabIndex = 0;
+const firstHero = $('.hero-photo');
+firstHero.before(heroTrack);heroTrack.append(firstHero);
+photos.slice(1).forEach((photo) => {
+  const img = document.createElement('img');
+  img.className = 'hero-photo';img.src = photo.src;img.alt = photo.alt;
+  img.loading = 'lazy';img.decoding = 'async';heroTrack.append(img);
+});
+const heroBrowse = document.createElement('div');heroBrowse.className = 'hero-browse';
+heroBrowse.innerHTML = '<span>Desliza para ver la casa</span><div class="hero-browse-controls"><button type="button" aria-label="Foto anterior de portada">←</button><span class="hero-count" aria-live="polite"></span><button type="button" aria-label="Foto siguiente de portada">→</button></div>';
+$('.hero').append(heroBrowse);
+function updateHeroCount() { $('.hero-count').textContent = `${nearestPhoto(heroTrack) + 1} / ${photos.length}`; }
+heroTrack.addEventListener('scroll', updateHeroCount, {passive:true});
+window.addEventListener('resize', updateHeroCount);updateHeroCount();
+heroBrowse.querySelectorAll('button').forEach((button, index) => button.addEventListener('click', () => scrollPhoto(heroTrack, nearestPhoto(heroTrack) + (index ? 1 : -1))));
+heroTrack.addEventListener('keydown', (event) => {
+  if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+  event.preventDefault();scrollPhoto(heroTrack, nearestPhoto(heroTrack) + (event.key === 'ArrowRight' ? 1 : -1));
+});
 function closeMenu() { $('#quick-menu').hidden = true; $('.menu-toggle').setAttribute('aria-expanded', 'false'); }
 $('.menu-toggle').addEventListener('click', () => {
   const open = $('#quick-menu').hidden; $('#quick-menu').hidden = !open;
@@ -133,19 +156,3 @@ $('.menu-toggle').addEventListener('click', () => {
 $('#quick-menu a').addEventListener('click', closeMenu);
 document.addEventListener('click', (event) => { if (!event.target.closest('.masthead')) closeMenu(); });
 document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeMenu(); });
-$('#share').addEventListener('click', async () => {
-  const url = CONFIG.publicUrl || window.location.href.split('#')[0];
-  if (navigator.share) {
-    try { await navigator.share({title:'Casa en venta · Compás 38',text:'Conoce esta casa en Colonia Sevilla, CDMX.',url}); return; }
-    catch (error) { if (error.name === 'AbortError') return; }
-  }
-  try {
-    if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(url);
-    else {
-      const field = document.createElement('textarea');field.value = url;
-      field.style.cssText = 'position:fixed;left:-9999px;top:0';document.body.append(field);field.select();
-      const copied = document.execCommand('copy');field.remove();if (!copied) throw new Error('copy');
-    }
-    toast('Enlace copiado');
-  } catch { toast('No se pudo copiar. Puedes compartir la dirección desde tu navegador.'); }
-});
