@@ -1,9 +1,9 @@
 'use strict';
 // ÚNICA CONFIGURACIÓN DE CONTACTO. E.164: código de país + número, sin espacios.
-// Ejemplo de formato exclusivamente: +[país][número]. No publicar sin completar.
+// Contacto oficial de Compás 38.
 const CONFIG = Object.freeze({
-  phone: '',
-  whatsappMessage: 'Hola, vi la propiedad de Compás 38 y me gustaría agendar una visita.',
+  phone: '+525534519917',
+  whatsappMessage: 'Hola, vi la casa en venta en Compás 38, colonia Sevilla. Me interesa recibir más información y agendar una visita. ¿Qué horarios tienen disponibles?',
   mapQuery: 'Compás 38, Colonia Sevilla, Ciudad de México',
   // Opcional: sustituir por una URL embed verificada o con Place ID exacto.
   mapEmbedUrl: '',
